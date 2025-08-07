@@ -4,7 +4,7 @@ import Patient from '../models/Patient.js';
 import Doctor from '../models/Doctor.js';
 import Appointment from '../models/Appointment.js';
 
-const JWT_SECRET = 'your-super-secret-jwt-key-change-this-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || '2b7e151628aed2a6abf7158809cf4f3c7e8f7a2b3c4d5e6f1a2b3c4d5e6f7a8b';
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -18,7 +18,7 @@ const setTokenCookie = (res, token) => {
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
 };
