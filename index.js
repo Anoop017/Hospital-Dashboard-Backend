@@ -34,12 +34,11 @@ app.use(limiter);
 // CORS configuration
 
 const allowedOrigins = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'https://hospital-patient-care-dashboard-full.netlify.app',
-  'https://hospital-patient-dashboard-frontend.netlify.app',
-  'https://hospital-patient-dashboard.onrender.com'
+  'http://localhost:5173', // Local dev
+  'http://127.0.0.1:5173', // Local dev
+  'https://hospital-patient-dashboard-frontend.netlify.app' // Production frontend
 ];
+
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -71,6 +70,12 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Routes
+
+app.get("/", (req, res) => {
+  res.send("Hospital Dashboard Backend is running ");
+});
+
+
 app.use('/api/auth', authRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/patients', patientRoutes);
