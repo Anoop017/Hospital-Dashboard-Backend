@@ -5,7 +5,16 @@ const JWT_SECRET = process.env.JWT_SECRET || '2b7e151628aed2a6abf7158809cf4f3c7e
 
 export const protect = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    let token;
+
+    // Check for token in Authorization header first (Bearer token)
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    // Fallback to cookie token
+    else if (req.cookies.token) {
+      token = req.cookies.token;
+    }
 
     if (!token) {
       return res.status(401).json({ message: 'Not authorized, no token' });

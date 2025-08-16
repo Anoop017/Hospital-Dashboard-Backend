@@ -18,7 +18,7 @@ const setTokenCookie = (res, token) => {
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Changed to 'none' for cross-origin
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
 };
@@ -129,9 +129,13 @@ export const getProfile = async (req, res) => {
       profile = await Doctor.findOne({ user: user._id });
     }
 
+    // Generate token for frontend compatibility
+    const token = generateToken(user._id);
+
     res.json({
       user,
-      profile
+      profile,
+      token
     });
   } catch (error) {
     console.error('Get profile error:', error);
