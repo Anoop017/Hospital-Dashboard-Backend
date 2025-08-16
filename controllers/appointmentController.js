@@ -8,10 +8,16 @@ import User from '../models/User.js';
 // @access  Private
 export const createAppointment = async (req, res) => {
   try {
-    const { patientId, doctorId, appointmentDate, appointmentTime, reason, isUrgent } = req.body;
+    const { patientId, doctorId, appointmentDate, appointmentTime, reason, isUrgent, notes } = req.body;
 
-    // Check if patient exists
-    const patient = await Patient.findById(patientId);
+    // Find patient - if patientId is provided, use it, otherwise find by user ID
+    let patient;
+    if (patientId) {
+      patient = await Patient.findById(patientId);
+    } else {
+      patient = await Patient.findOne({ user: req.user._id });
+    }
+    
     if (!patient) {
       return res.status(404).json({ message: 'Patient not found' });
     }
@@ -35,11 +41,12 @@ export const createAppointment = async (req, res) => {
     }
 
     const appointment = await Appointment.create({
-      patient: patientId,
+      patient: patient._id,
       doctor: doctorId,
       appointmentDate,
       appointmentTime,
       reason,
+      notes,
       isUrgent: isUrgent || false
     });
 
@@ -101,6 +108,30 @@ export const getMyAppointments = async (req, res) => {
     res.json(appointments);
   } catch (error) {
     console.error('Get my appointments error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Get doctor's appointments
+// @route   GET /api/appointments/doctor
+// @access  Private
+export const getDoctorAppointments = async (req, res) => {
+  try {
+    const doctor = await Doctor.findOne({ user: req.user._id });
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor profile not found' });
+    }
+
+    const appointments = await Appointment.find({ doctor: doctor._id })
+      .populate([
+        { path: 'patient', populate: { path: 'user', select: 'name email' } },
+        { path: 'doctor', populate: { path: 'user', select: 'name email' } }
+      ])
+      .sort({ appointmentDate: 1, appointmentTime: 1 });
+
+    res.json(appointments);
+  } catch (error) {
+    console.error('Get doctor appointments error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

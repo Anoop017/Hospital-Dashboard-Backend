@@ -12,6 +12,7 @@ import appointmentRoutes from './routes/appointments.js';
 import patientRoutes from './routes/patients.js';
 import doctorRoutes from './routes/doctors.js';
 import analyticsRoutes from './routes/analytics.js';
+import userRoutes from './routes/users.js';
 
 dotenv.config(); // Load env vars
 
@@ -81,6 +82,7 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
